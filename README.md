@@ -4,13 +4,13 @@ A nice!view status screen for ZMK **main / v0.4 (Zephyr 4.1, LVGL 9)**, for spli
 
 ![Preview](art/preview.png)
 
-*Left to right: central connected on Graphite; charging and pairing a new profile on NumRow; USB on Function; peripheral. Rendered from the module's drawing code with LVGL 9.3.*
+_Left to right: central connected on Graphite; charging and pairing a new profile on NumRow; USB on Function; peripheral. Rendered from the module's drawing code with LVGL 9.3._
 
-| Section | Central (left) | Peripheral (right) |
-|---|---|---|
-| Top band (24 px) | Battery icon, connection icon | Battery icon, link icon |
-| Art (112 px) | 68×112 image | 68×112 image |
-| Bottom band (24 px) | BLE profile dots, active layer name | Optional label |
+| Section             | Central (left)                      | Peripheral (right)      |
+| ------------------- | ----------------------------------- | ----------------------- |
+| Top band (24 px)    | Battery icon, connection icon       | Battery icon, link icon |
+| Art (112 px)        | 68×112 image                        | 68×112 image            |
+| Bottom band (24 px) | BLE profile dots, active layer name | Optional label          |
 
 Connection icon: USB symbol = USB output; Bluetooth rune = connected; gear = pairing (empty profile, advertising); ✕ = paired device not connected. On the peripheral the icon shows its link to the central (rune or ✕).
 
@@ -47,11 +47,11 @@ Requires ZMK `main` (or v0.4 once released). It will not build on v0.3 (LVGL 8).
 
 ## Options (`<keyboard>.conf`)
 
-| Option | Default | |
-|---|---|---|
-| `CONFIG_NICE_VIEW_CUSTOM_ART` | `""` | Path to your art `.c` file, absolute or relative to the `config/` folder. Empty = built-in placeholder. |
-| `CONFIG_NICE_VIEW_CUSTOM_INVERTED` | `y` | White on black. Set `n` for black on white |
-| `CONFIG_NICE_VIEW_CUSTOM_PERIPHERAL_LABEL` | `""` | Text in the peripheral's bottom band, e.g. `"Corne"` |
+| Option                                     | Default |                                                                                                         |
+| ------------------------------------------ | ------- | ------------------------------------------------------------------------------------------------------- |
+| `CONFIG_NICE_VIEW_CUSTOM_ART`              | `""`    | Path to your art `.c` file, absolute or relative to the `config/` folder. Empty = built-in placeholder. |
+| `CONFIG_NICE_VIEW_CUSTOM_INVERTED`         | `n`     | Invert all colors                                                                                       |
+| `CONFIG_NICE_VIEW_CUSTOM_PERIPHERAL_LABEL` | `""`    | Text in the peripheral's bottom band, e.g. `"Corne"`                                                    |
 
 Layer names come from each layer's `display-name` (the name in `ZMK_LAYER(name, ...)` with zmk-helpers). Layers without one show `Layer N`.
 

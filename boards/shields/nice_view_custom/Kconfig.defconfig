@@ -41,7 +41,7 @@ config NICE_VIEW_CUSTOM_WIDGET
 
 config NICE_VIEW_CUSTOM_INVERTED
     bool "White on black (set =n for black on white)"
-    default y
+    default n
 
 config NICE_VIEW_CUSTOM_ART
     string "Path to a custom art .c file (absolute, or relative to the zmk-config folder)"
