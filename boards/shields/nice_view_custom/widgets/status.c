@@ -1,7 +1,7 @@
 /*
  * Central / non-split status screen.
  *
- *   top    (68 px): output status, battery of both halves
+ *   top    (68 px): output status, own battery
  *   middle (68 px): art image
  *   bottom (24 px): BLE profile dots, active layer name
  *
@@ -28,9 +28,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/keymap.h>
-#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING)
-#include <zmk/split/central.h>
-#endif
 
 #include "status.h"
 
@@ -90,13 +87,8 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
     /* divider */
     canvas_draw_rect(canvas, 0, 20, CANVAS_SIZE, 1, &fg);
 
-    /* Batteries */
-#if IS_ENABLED(CONFIG_ZMK_SPLIT)
-    draw_battery_row(canvas, 26, "L", state->battery, state->charging);
-    draw_battery_row(canvas, 46, "R", state->peripheral_battery, false);
-#else
-    draw_battery_row(canvas, 36, "B", state->battery, state->charging);
-#endif
+    /* Battery */
+    draw_battery_row(canvas, 36, state->battery, state->charging);
 
     rotate_canvas(canvas);
 }
@@ -175,39 +167,6 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_battery_status, struct battery_status_state,
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_battery_state_changed);
 #if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
 ZMK_SUBSCRIPTION(widget_battery_status, zmk_usb_conn_state_changed);
-#endif
-
-/* ---------- peripheral battery ---------- */
-
-#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING)
-struct peripheral_battery_state {
-    uint8_t level;
-};
-
-static void peripheral_battery_update_cb(struct peripheral_battery_state state) {
-    struct zmk_widget_status *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-        widget->state.peripheral_battery = state.level;
-        draw_top(widget->obj, &widget->state);
-    }
-}
-
-static struct peripheral_battery_state peripheral_battery_get_state(const zmk_event_t *eh) {
-    const struct zmk_peripheral_battery_state_changed *ev =
-        as_zmk_peripheral_battery_state_changed(eh);
-    if (ev != NULL) {
-        return (struct peripheral_battery_state){.level = ev->state_of_charge};
-    }
-    uint8_t level;
-    if (zmk_split_central_get_peripheral_battery_level(0, &level) == 0) {
-        return (struct peripheral_battery_state){.level = level};
-    }
-    return (struct peripheral_battery_state){.level = BATTERY_UNKNOWN};
-}
-
-ZMK_DISPLAY_WIDGET_LISTENER(widget_peripheral_battery, struct peripheral_battery_state,
-                            peripheral_battery_update_cb, peripheral_battery_get_state)
-ZMK_SUBSCRIPTION(widget_peripheral_battery, zmk_peripheral_battery_state_changed);
 #endif
 
 /* ---------- output / profiles ---------- */
@@ -290,14 +249,10 @@ int zmk_widget_status_init(struct zmk_widget_status *widget, lv_obj_t *parent) {
     widget->obj = lv_obj_create(parent);
     init_canvases(widget->obj, widget->cbuf, widget->cbuf2, widget->cbuf3);
 
-    widget->state.peripheral_battery = BATTERY_UNKNOWN;
     draw_art(lv_obj_get_child(widget->obj, 1));
 
     sys_slist_append(&widgets, &widget->node);
     widget_battery_status_init();
-#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING)
-    widget_peripheral_battery_init();
-#endif
     widget_output_status_init();
     widget_layer_status_init();
 

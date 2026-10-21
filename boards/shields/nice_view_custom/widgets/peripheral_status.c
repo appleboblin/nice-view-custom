@@ -50,7 +50,7 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
 
     canvas_draw_rect(canvas, 0, 20, CANVAS_SIZE, 1, &fg);
 
-    draw_battery_row(canvas, 36, "R", state->battery, state->charging);
+    draw_battery_row(canvas, 36, state->battery, state->charging);
 
     rotate_canvas(canvas);
 }

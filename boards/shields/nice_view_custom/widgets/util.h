@@ -25,13 +25,10 @@
 #define LVGL_FOREGROUND                                                                            \
     (IS_ENABLED(CONFIG_NICE_VIEW_CUSTOM_INVERTED) ? lv_color_white() : lv_color_black())
 
-#define BATTERY_UNKNOWN 0xFF
-
 struct status_state {
     uint8_t battery;
     bool charging;
 #if !IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
-    uint8_t peripheral_battery;
     struct zmk_endpoint_instance selected_endpoint;
     int active_profile_index;
     bool active_profile_connected;
@@ -56,8 +53,7 @@ void rotate_canvas(lv_obj_t *canvas);
 void init_canvases(lv_obj_t *obj, uint8_t *top, uint8_t *middle, uint8_t *bottom);
 
 /* Shared section painters */
-void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, const char *label, uint8_t level,
-                      bool charging);
+void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, uint8_t level, bool charging);
 void draw_art(lv_obj_t *canvas);
 
 void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font,

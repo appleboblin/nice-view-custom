@@ -29,10 +29,6 @@ endchoice
 config LV_Z_MEM_POOL_SIZE
     default 8192 if ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
 
-# Central fetches the peripheral's battery level so both halves can be shown.
-config ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING
-    default y if ZMK_SPLIT_BLE && ZMK_SPLIT_ROLE_CENTRAL
-
 config ZMK_DISPLAY_STATUS_SCREEN_CUSTOM
     imply NICE_VIEW_CUSTOM_WIDGET
 

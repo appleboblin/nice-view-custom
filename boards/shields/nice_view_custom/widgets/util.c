@@ -37,44 +37,37 @@ void init_canvases(lv_obj_t *obj, uint8_t *top, uint8_t *middle, uint8_t *bottom
     lv_canvas_set_buffer(c_bottom, bottom, CANVAS_SIZE, CANVAS_SIZE, CANVAS_COLOR_FORMAT);
 }
 
-/* One battery row, 14 px tall: "L [=====]  87%" */
-void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, const char *label, uint8_t level,
-                      bool charging) {
+/* One battery row, 14 px tall: "[=====]   87%" */
+void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, uint8_t level, bool charging) {
     lv_draw_rect_dsc_t bg, fg;
     init_rect_dsc(&bg, LVGL_BACKGROUND);
     init_rect_dsc(&fg, LVGL_FOREGROUND);
-    lv_draw_label_dsc_t small;
-    init_label_dsc(&small, LVGL_FOREGROUND, &lv_font_unscii_8, LV_TEXT_ALIGN_LEFT);
     lv_draw_label_dsc_t pct_dsc;
     init_label_dsc(&pct_dsc, LVGL_FOREGROUND, &lv_font_unscii_8, LV_TEXT_ALIGN_RIGHT);
 
-    canvas_draw_text(canvas, 0, y + 3, 8, &small, label);
+    level = MIN(level, 100);
 
-    /* outline 22x12 + nub, leaves x 36..67 for "100%" */
-    const lv_coord_t x = 10;
+    /* outline 22x12 + nub, leaves x 32..67 for "100%" */
+    const lv_coord_t x = 2;
     canvas_draw_rect(canvas, x, y + 1, 22, 12, &fg);
     canvas_draw_rect(canvas, x + 1, y + 2, 20, 10, &bg);
     canvas_draw_rect(canvas, x + 22, y + 4, 2, 6, &fg);
-
-    char pct[6];
-    if (level == BATTERY_UNKNOWN) {
-        snprintf(pct, sizeof(pct), "--");
-    } else {
-        snprintf(pct, sizeof(pct), "%u%%", MIN(level, 100));
-    }
-    canvas_draw_text(canvas, 36, y + 3, CANVAS_SIZE - 36, &pct_dsc, pct);
 
     if (charging) {
         /* Empty outline + bolt; the percentage text still shows the level */
         lv_draw_image_dsc_t img_dsc;
         lv_draw_image_dsc_init(&img_dsc);
         canvas_draw_img(canvas, x + 6, y - 2, &bolt, &img_dsc);
-    } else if (level != BATTERY_UNKNOWN) {
-        int fill = (MIN(level, 100) * 18 + 50) / 100;
+    } else {
+        int fill = (level * 18 + 50) / 100;
         if (fill > 0) {
             canvas_draw_rect(canvas, x + 2, y + 3, fill, 8, &fg);
         }
     }
+
+    char pct[6];
+    snprintf(pct, sizeof(pct), "%u%%", level);
+    canvas_draw_text(canvas, 32, y + 3, CANVAS_SIZE - 32, &pct_dsc, pct);
 }
 
 void draw_art(lv_obj_t *canvas) {
