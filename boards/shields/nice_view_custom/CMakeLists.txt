@@ -5,6 +5,7 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_VIEW_CUSTOM_WIDGET)
   zephyr_library_sources(custom_status_screen.c)
   zephyr_library_sources(widgets/util.c)
   zephyr_library_sources(widgets/bolt.c)
+  zephyr_library_sources(widgets/bt_rune.c)
 
   # Middle-section art: user file if configured, otherwise the placeholder.
   if(CONFIG_NICE_VIEW_CUSTOM_ART STREQUAL "")

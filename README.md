@@ -4,7 +4,7 @@ A nice!view status screen for ZMK **main / v0.4 (Zephyr 4.1, LVGL 9)**, for spli
 
 ![Preview](art/preview.png)
 
-*Left to right: central connected on Graphite; charging, profile 2 not connected, NumRow; USB, Function; peripheral. Rendered from the module's drawing code with LVGL 9.3.*
+*Left to right: central connected on Graphite; charging and pairing a new profile on NumRow; USB on Function; peripheral. Rendered from the module's drawing code with LVGL 9.3.*
 
 | Section | Central (left) | Peripheral (right) |
 |---|---|---|
@@ -12,7 +12,7 @@ A nice!view status screen for ZMK **main / v0.4 (Zephyr 4.1, LVGL 9)**, for spli
 | Art (112 px) | 68×112 image | 68×112 image |
 | Bottom band (24 px) | BLE profile dots, active layer name | Optional label |
 
-Connection icon: USB symbol = USB output; Bluetooth + ✓ connected; Bluetooth + ⟳ pairing (empty profile, advertising); Bluetooth + ✕ paired device not connected. On the peripheral the icon shows its link to the central.
+Connection icon: USB symbol = USB output; Bluetooth rune = connected; gear = pairing (empty profile, advertising); ✕ = paired device not connected. On the peripheral the icon shows its link to the central (rune or ✕).
 
 Battery: each half shows its own; the bar shows the level, a bolt replaces it while charging over USB.
 

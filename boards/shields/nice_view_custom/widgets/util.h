@@ -65,6 +65,9 @@ void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_f
                     lv_text_align_t align);
 void init_rect_dsc(lv_draw_rect_dsc_t *rect_dsc, lv_color_t bg_color);
 
+/* Bluetooth rune without the badge outline, 10x16, top-left at (x, y) */
+void draw_bt_rune(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y);
+
 void canvas_draw_rect(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y, lv_coord_t w, lv_coord_t h,
                       lv_draw_rect_dsc_t *draw_dsc);
 void canvas_draw_text(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y, lv_coord_t max_w,

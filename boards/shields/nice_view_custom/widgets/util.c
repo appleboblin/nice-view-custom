@@ -9,6 +9,7 @@
 #include "util.h"
 
 LV_IMG_DECLARE(bolt);
+LV_IMG_DECLARE(bt_rune);
 LV_IMG_DECLARE(nice_view_custom_art);
 
 void rotate_canvas(lv_obj_t *canvas) {
@@ -65,6 +66,12 @@ void draw_battery_icon(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y, uint8_t lev
             canvas_draw_rect(canvas, x + 2, y + 2, fill, 8, &fg);
         }
     }
+}
+
+void draw_bt_rune(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y) {
+    lv_draw_image_dsc_t img_dsc;
+    lv_draw_image_dsc_init(&img_dsc);
+    canvas_draw_img(canvas, x, y, &bt_rune, &img_dsc);
 }
 
 void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font,

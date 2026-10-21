@@ -59,25 +59,24 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
 
     draw_battery_icon(canvas, 1, TOP_BAND_Y + 6, state->battery, state->charging);
 
-    /* Connection: USB, or Bluetooth + state (connected / pairing / not connected) */
-    const char *icon = "";
+    /* Connection: USB, Bluetooth connected, pairing (gear), paired but not connected (x) */
     switch (state->selected_endpoint.transport) {
     case ZMK_TRANSPORT_USB:
-        icon = LV_SYMBOL_USB;
+        canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc, LV_SYMBOL_USB);
         break;
     case ZMK_TRANSPORT_BLE:
         if (!state->active_profile_bonded) {
-            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_REFRESH; /* open profile, advertising */
+            canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc,
+                             LV_SYMBOL_SETTINGS);
         } else if (state->active_profile_connected) {
-            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_OK;
+            draw_bt_rune(canvas, CANVAS_SIZE - 11, TOP_BAND_Y + 4);
         } else {
-            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_CLOSE;
+            canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc, LV_SYMBOL_CLOSE);
         }
         break;
     default:
         break;
     }
-    canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc, icon);
 
     rotate_canvas(canvas);
 }

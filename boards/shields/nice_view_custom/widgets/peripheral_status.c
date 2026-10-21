@@ -43,9 +43,11 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
     draw_battery_icon(canvas, 1, TOP_BAND_Y + 6, state->battery, state->charging);
 
     /* Link to the central half */
-    canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc,
-                     state->connected ? LV_SYMBOL_BLUETOOTH LV_SYMBOL_OK
-                                      : LV_SYMBOL_BLUETOOTH LV_SYMBOL_CLOSE);
+    if (state->connected) {
+        draw_bt_rune(canvas, CANVAS_SIZE - 11, TOP_BAND_Y + 4);
+    } else {
+        canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc, LV_SYMBOL_CLOSE);
+    }
 
     rotate_canvas(canvas);
 }
