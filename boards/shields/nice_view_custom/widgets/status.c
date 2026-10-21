@@ -70,7 +70,7 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
         icon = LV_SYMBOL_USB;
         break;
     case ZMK_TRANSPORT_BLE:
-        snprintf(transport, sizeof(transport), "BT %d", state->active_profile_index + 1);
+        strcpy(transport, "BT"); /* active profile is shown by the dots */
         if (state->active_profile_bonded) {
             icon = state->active_profile_connected ? LV_SYMBOL_WIFI : LV_SYMBOL_CLOSE;
         } else {

@@ -8,7 +8,7 @@ A nice!view status screen for ZMK **main / v0.4 (Zephyr 4.1, LVGL 9)**, for spli
 
 | Section | Central (left) | Peripheral (right) |
 |---|---|---|
-| Top | Output (`USB` / `BT n` + state icon), own battery | Link status, own battery |
+| Top | Output (`USB` / `BT` + state icon), own battery | Link status, own battery |
 | Middle | 68×68 art image | 68×68 art image |
 | Bottom | BLE profile dots, active layer name | Optional label |
 
