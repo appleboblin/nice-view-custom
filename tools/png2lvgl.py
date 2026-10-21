@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Convert an image to a 1-bit LVGL 9 image for the nice_view_custom art slot.
 
-The art slot is 68x68 pixels, portrait orientation, black and white.
-Draw your image upright; the firmware handles the display rotation.
+The art slot is 68 wide x 112 tall (portrait), black and white.
+Draw your image upright; this tool rotates it to the panel's landscape orientation.
 
     python3 png2lvgl.py my_art.png -o config/art.c
     python3 png2lvgl.py photo.jpg -o config/art.c --dither --preview preview.png
@@ -20,10 +20,10 @@ try:
 except ImportError:
     sys.exit("png2lvgl: Pillow is required (pip install pillow)")
 
-SLOT = 68
+SLOT_W, SLOT_H = 68, 112  # portrait
 
 
-def load_bits(path, size, threshold, dither, invert, fit):
+def load_bits(path, threshold, dither, invert, fit):
     img = Image.open(path)
     # Flatten transparency onto white (= background)
     if img.mode in ("RGBA", "LA", "P"):
@@ -33,12 +33,12 @@ def load_bits(path, size, threshold, dither, invert, fit):
     img = img.convert("L")
 
     if fit == "contain":
-        if img.width > size or img.height > size:  # shrink only; small art stays pixel-exact
-            img = ImageOps.contain(img, (size, size), Image.LANCZOS)
+        if img.width > SLOT_W or img.height > SLOT_H:  # shrink only; small art stays pixel-exact
+            img = ImageOps.contain(img, (SLOT_W, SLOT_H), Image.LANCZOS)
     elif fit == "cover":
-        img = ImageOps.fit(img, (size, size), Image.LANCZOS)
-    elif img.width > size or img.height > size:
-        sys.exit(f"png2lvgl: image is {img.width}x{img.height}; max {size}x{size} with --fit none")
+        img = ImageOps.fit(img, (SLOT_W, SLOT_H), Image.LANCZOS)
+    elif img.width > SLOT_W or img.height > SLOT_H:
+        sys.exit(f"png2lvgl: image is {img.width}x{img.height}; max {SLOT_W}x{SLOT_H} with --fit none")
 
     if invert:
         img = ImageOps.invert(img)
@@ -111,7 +111,6 @@ def main():
     p.add_argument("-o", "--output", type=Path, required=True, help="output .c file")
     p.add_argument("--name", default="nice_view_custom_art",
                    help="C symbol name (default: nice_view_custom_art, what the shield expects)")
-    p.add_argument("--size", type=int, default=SLOT, help=f"max width/height (default {SLOT})")
     p.add_argument("--fit", choices=["contain", "cover", "none"], default="contain",
                    help="contain: shrink to fit, never enlarge (default); cover: scale and crop; none: no scaling")
     p.add_argument("--threshold", type=int, default=128, help="0-255, lower = less ink (default 128)")
@@ -120,9 +119,11 @@ def main():
     p.add_argument("--preview", type=Path, help="also write a scaled-up PNG preview")
     a = p.parse_args()
 
-    w, h, ink = load_bits(a.input, a.size, a.threshold, a.dither, a.invert, a.fit)
-    a.output.write_text(to_c(a.name, w, h, ink))
-    print(f"wrote {a.output} ({w}x{h})")
+    w, h, ink = load_bits(a.input, a.threshold, a.dither, a.invert, a.fit)
+    # Portrait top -> landscape right: rotate 90 degrees clockwise for the panel.
+    rot = [[ink[h - 1 - y][x] for y in range(h)] for x in range(w)]
+    a.output.write_text(to_c(a.name, h, w, rot))
+    print(f"wrote {a.output} ({w}x{h} portrait)")
 
     if a.preview:
         prev = Image.new("1", (w, h), 1)

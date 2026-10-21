@@ -21,67 +21,50 @@ void rotate_canvas(lv_obj_t *canvas) {
                       LV_DISPLAY_ROTATION_270, CANVAS_COLOR_FORMAT);
 }
 
-void init_canvases(lv_obj_t *obj, uint8_t *top, uint8_t *middle, uint8_t *bottom) {
+void init_layout(lv_obj_t *obj, uint8_t *top, uint8_t *bottom) {
     lv_obj_set_size(obj, 160, 68);
+    /* Solid background so art smaller than the slot has matching margins */
+    lv_obj_set_style_bg_color(obj, LVGL_BACKGROUND, LV_PART_MAIN);
+    lv_obj_set_style_bg_opa(obj, LV_OPA_COVER, LV_PART_MAIN);
 
+    /* child 0: top band canvas; only landscape x 136..159 is on screen */
     lv_obj_t *c_top = lv_canvas_create(obj);
-    lv_obj_align(c_top, LV_ALIGN_TOP_RIGHT, 0, 0);
+    lv_obj_align(c_top, LV_ALIGN_TOP_LEFT, 160 - BAND, 0);
     lv_canvas_set_buffer(c_top, top, CANVAS_SIZE, CANVAS_SIZE, CANVAS_COLOR_FORMAT);
 
-    lv_obj_t *c_middle = lv_canvas_create(obj);
-    lv_obj_align(c_middle, LV_ALIGN_TOP_LEFT, 24, 0);
-    lv_canvas_set_buffer(c_middle, middle, CANVAS_SIZE, CANVAS_SIZE, CANVAS_COLOR_FORMAT);
+    /* child 1: art, landscape x 24..135, centered */
+    const lv_image_dsc_t *art = &nice_view_custom_art;
+    lv_obj_t *img = lv_image_create(obj);
+    lv_image_set_src(img, art);
+    lv_obj_align(img, LV_ALIGN_TOP_LEFT, BAND + (ART_H - (lv_coord_t)art->header.w) / 2,
+                 (ART_W - (lv_coord_t)art->header.h) / 2);
 
+    /* child 2: bottom band canvas; only landscape x 0..23 is on screen */
     lv_obj_t *c_bottom = lv_canvas_create(obj);
-    lv_obj_align(c_bottom, LV_ALIGN_TOP_LEFT, -44, 0);
+    lv_obj_align(c_bottom, LV_ALIGN_TOP_LEFT, BAND - CANVAS_SIZE, 0);
     lv_canvas_set_buffer(c_bottom, bottom, CANVAS_SIZE, CANVAS_SIZE, CANVAS_COLOR_FORMAT);
 }
 
-/* One battery row, 14 px tall: "[=====]   87%" */
-void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, uint8_t level, bool charging) {
+void draw_battery_icon(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y, uint8_t level,
+                       bool charging) {
     lv_draw_rect_dsc_t bg, fg;
     init_rect_dsc(&bg, LVGL_BACKGROUND);
     init_rect_dsc(&fg, LVGL_FOREGROUND);
-    lv_draw_label_dsc_t pct_dsc;
-    init_label_dsc(&pct_dsc, LVGL_FOREGROUND, &lv_font_unscii_8, LV_TEXT_ALIGN_RIGHT);
 
-    level = MIN(level, 100);
-
-    /* outline 22x12 + nub, leaves x 32..67 for "100%" */
-    const lv_coord_t x = 2;
-    canvas_draw_rect(canvas, x, y + 1, 22, 12, &fg);
-    canvas_draw_rect(canvas, x + 1, y + 2, 20, 10, &bg);
-    canvas_draw_rect(canvas, x + 22, y + 4, 2, 6, &fg);
+    canvas_draw_rect(canvas, x, y, 22, 12, &fg);
+    canvas_draw_rect(canvas, x + 1, y + 1, 20, 10, &bg);
+    canvas_draw_rect(canvas, x + 22, y + 3, 2, 6, &fg);
 
     if (charging) {
-        /* Empty outline + bolt; the percentage text still shows the level */
         lv_draw_image_dsc_t img_dsc;
         lv_draw_image_dsc_init(&img_dsc);
-        canvas_draw_img(canvas, x + 6, y - 2, &bolt, &img_dsc);
+        canvas_draw_img(canvas, x + 6, y - 3, &bolt, &img_dsc);
     } else {
-        int fill = (level * 18 + 50) / 100;
+        int fill = (MIN(level, 100) * 18 + 50) / 100;
         if (fill > 0) {
-            canvas_draw_rect(canvas, x + 2, y + 3, fill, 8, &fg);
+            canvas_draw_rect(canvas, x + 2, y + 2, fill, 8, &fg);
         }
     }
-
-    char pct[6];
-    snprintf(pct, sizeof(pct), "%u%%", level);
-    canvas_draw_text(canvas, 32, y + 3, CANVAS_SIZE - 32, &pct_dsc, pct);
-}
-
-void draw_art(lv_obj_t *canvas) {
-    lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
-
-    const lv_image_dsc_t *art = &nice_view_custom_art;
-    lv_coord_t x = (CANVAS_SIZE - (lv_coord_t)art->header.w) / 2;
-    lv_coord_t y = (CANVAS_SIZE - (lv_coord_t)art->header.h) / 2;
-
-    lv_draw_image_dsc_t img_dsc;
-    lv_draw_image_dsc_init(&img_dsc);
-    canvas_draw_img(canvas, x, y, art, &img_dsc);
-
-    rotate_canvas(canvas);
 }
 
 void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font,

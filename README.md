@@ -4,16 +4,19 @@ A nice!view status screen for ZMK **main / v0.4 (Zephyr 4.1, LVGL 9)**, for spli
 
 ![Preview](art/preview.png)
 
-*Left to right: central charging on BT 1, central on profile 4 / Function layer, peripheral. Rendered from the module's drawing code.*
+*Left to right: central connected on Graphite; charging, profile 2 not connected, NumRow; USB, Function; peripheral. Rendered from the module's drawing code with LVGL 9.3.*
 
 | Section | Central (left) | Peripheral (right) |
 |---|---|---|
-| Top | Output (`USB` / `BT` + state icon), own battery | Link status, own battery |
-| Middle | 68×68 art image | 68×68 art image |
-| Bottom | BLE profile dots, active layer name | Optional label |
+| Top band (24 px) | Battery icon, connection icon | Battery icon, link icon |
+| Art (112 px) | 68×112 image | 68×112 image |
+| Bottom band (24 px) | BLE profile dots, active layer name | Optional label |
 
-Profile dots: filled = active, ring = bonded, small dot = empty profile.
-Battery: each half shows its own. The bar shows the level; while charging over USB it is replaced by a bolt (percentage still shown).
+Connection icon: USB symbol = USB output; Bluetooth + ✓ connected; Bluetooth + ⟳ pairing (empty profile, advertising); Bluetooth + ✕ paired device not connected. On the peripheral the icon shows its link to the central.
+
+Battery: each half shows its own; the bar shows the level, a bolt replaces it while charging over USB.
+
+Profile dots: filled = active, ring = paired, small dot = empty profile.
 
 ## Usage
 
@@ -54,7 +57,7 @@ Layer names come from each layer's `display-name` (the name in `ZMK_LAYER(name, 
 
 ## Custom art
 
-The middle slot is 68×68, 1-bit. Draw it upright (portrait); rotation is handled in firmware.
+The art slot is 68 wide × 112 tall, 1-bit. Draw it upright (portrait); the converter rotates it for the panel.
 
 ```sh
 pip install pillow
@@ -67,7 +70,7 @@ then in `config/corne.conf`:
 CONFIG_NICE_VIEW_CUSTOM_ART="art.c"
 ```
 
-Converter flags: `--dither` (photos), `--threshold N` (0–255, default 128), `--invert` (swap ink/background in the source), `--fit contain|cover|none`. Images larger than 68×68 are shrunk; smaller ones stay pixel-exact and are centered. Dark pixels in your source image become ink (drawn white on the default black screen); light and transparent pixels become background. Pixel art drawn at exactly 68×68 looks best on this panel.
+Converter flags: `--dither` (photos), `--threshold N` (0–255, default 128), `--invert` (swap ink/background in the source), `--fit contain|cover|none`. Images larger than 68×112 are shrunk; smaller ones stay pixel-exact and are centered. Dark pixels in your source image become ink (drawn white on the default black screen); light and transparent pixels become background. Pixel art drawn at exactly 68×112 looks best on this panel.
 
 The art file is compiled into both halves. Only use artwork you have the rights to.
 

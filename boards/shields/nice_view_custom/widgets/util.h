@@ -10,11 +10,16 @@
 
 #define NVC_PROFILE_COUNT 5
 
-/* The 160x68 panel is split into three 68x68 canvases drawn in portrait
- * orientation and rotated. Only the first BOTTOM_BAND rows of the bottom
- * canvas are visible (160 = 68 + 68 + 24). */
+/* Portrait layout of the 160x68 panel (top to bottom):
+ *   top band    24 px  battery + connection icon   (68x68 canvas, rows 44..67 visible)
+ *   art        112 px  lv_image, pre-rotated by tools/png2lvgl.py
+ *   bottom band 24 px  profile dots + layer name   (68x68 canvas, rows 0..23 visible)
+ * Canvases are drawn in portrait orientation and rotated. */
 #define CANVAS_SIZE 68
-#define BOTTOM_BAND 24
+#define BAND 24
+#define TOP_BAND_Y (CANVAS_SIZE - BAND)
+#define ART_W 68  /* portrait */
+#define ART_H 112
 #define CANVAS_COLOR_FORMAT LV_COLOR_FORMAT_L8 // smallest type supported by sw_rotate
 #define CANVAS_BUF_SIZE                                                                            \
     LV_CANVAS_BUF_SIZE(CANVAS_SIZE, CANVAS_SIZE, LV_COLOR_FORMAT_GET_BPP(CANVAS_COLOR_FORMAT),     \
@@ -50,11 +55,11 @@ struct battery_status_state {
 };
 
 void rotate_canvas(lv_obj_t *canvas);
-void init_canvases(lv_obj_t *obj, uint8_t *top, uint8_t *middle, uint8_t *bottom);
+void init_layout(lv_obj_t *obj, uint8_t *top, uint8_t *bottom);
 
-/* Shared section painters */
-void draw_battery_row(lv_obj_t *canvas, lv_coord_t y, uint8_t level, bool charging);
-void draw_art(lv_obj_t *canvas);
+/* Battery icon, 24x12 (bolt overlay extends 3 px above and below while charging) */
+void draw_battery_icon(lv_obj_t *canvas, lv_coord_t x, lv_coord_t y, uint8_t level,
+                       bool charging);
 
 void init_label_dsc(lv_draw_label_dsc_t *label_dsc, lv_color_t color, const lv_font_t *font,
                     lv_text_align_t align);

@@ -1,9 +1,9 @@
 /*
  * Central / non-split status screen.
  *
- *   top    (68 px): output status, own battery
- *   middle (68 px): art image
- *   bottom (24 px): BLE profile dots, active layer name
+ *   top band (24 px): battery, connection icon
+ *   art     (112 px): art image
+ *   bottom   (24 px): BLE profile dots, active layer name
  *
  * Copyright (c) 2023-2025 The ZMK Contributors
  * SPDX-License-Identifier: MIT
@@ -54,41 +54,30 @@ static void draw_top(lv_obj_t *widget, const struct status_state *state) {
 
     lv_draw_label_dsc_t icon_dsc;
     init_label_dsc(&icon_dsc, LVGL_FOREGROUND, &lv_font_montserrat_16, LV_TEXT_ALIGN_RIGHT);
-    lv_draw_label_dsc_t text_dsc;
-    init_label_dsc(&text_dsc, LVGL_FOREGROUND, &lv_font_unscii_8, LV_TEXT_ALIGN_LEFT);
-    lv_draw_rect_dsc_t fg;
-    init_rect_dsc(&fg, LVGL_FOREGROUND);
 
     lv_canvas_fill_bg(canvas, LVGL_BACKGROUND, LV_OPA_COVER);
 
-    /* Output status: transport text on the left, state icon on the right */
-    char transport[16] = "";
+    draw_battery_icon(canvas, 1, TOP_BAND_Y + 6, state->battery, state->charging);
+
+    /* Connection: USB, or Bluetooth + state (connected / pairing / not connected) */
     const char *icon = "";
     switch (state->selected_endpoint.transport) {
     case ZMK_TRANSPORT_USB:
-        strcpy(transport, "USB");
         icon = LV_SYMBOL_USB;
         break;
     case ZMK_TRANSPORT_BLE:
-        strcpy(transport, "BT"); /* active profile is shown by the dots */
-        if (state->active_profile_bonded) {
-            icon = state->active_profile_connected ? LV_SYMBOL_WIFI : LV_SYMBOL_CLOSE;
+        if (!state->active_profile_bonded) {
+            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_REFRESH; /* open profile, advertising */
+        } else if (state->active_profile_connected) {
+            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_OK;
         } else {
-            icon = LV_SYMBOL_SETTINGS; /* open profile, advertising */
+            icon = LV_SYMBOL_BLUETOOTH LV_SYMBOL_CLOSE;
         }
         break;
     default:
-        strcpy(transport, "---");
         break;
     }
-    canvas_draw_text(canvas, 0, 5, CANVAS_SIZE, &text_dsc, transport);
-    canvas_draw_text(canvas, 0, 1, CANVAS_SIZE, &icon_dsc, icon);
-
-    /* divider */
-    canvas_draw_rect(canvas, 0, 20, CANVAS_SIZE, 1, &fg);
-
-    /* Battery */
-    draw_battery_row(canvas, 36, state->battery, state->charging);
+    canvas_draw_text(canvas, 0, TOP_BAND_Y + 3, CANVAS_SIZE, &icon_dsc, icon);
 
     rotate_canvas(canvas);
 }
@@ -247,9 +236,8 @@ ZMK_SUBSCRIPTION(widget_layer_status, zmk_layer_state_changed);
 
 int zmk_widget_status_init(struct zmk_widget_status *widget, lv_obj_t *parent) {
     widget->obj = lv_obj_create(parent);
-    init_canvases(widget->obj, widget->cbuf, widget->cbuf2, widget->cbuf3);
+    init_layout(widget->obj, widget->cbuf, widget->cbuf3);
 
-    draw_art(lv_obj_get_child(widget->obj, 1));
 
     sys_slist_append(&widgets, &widget->node);
     widget_battery_status_init();
