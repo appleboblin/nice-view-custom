@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MIT
+
+if(CONFIG_ZMK_DISPLAY AND CONFIG_NICE_VIEW_CUSTOM_WIDGET)
+  zephyr_library_include_directories(${CMAKE_SOURCE_DIR}/include)
+  zephyr_library_sources(custom_status_screen.c)
+  zephyr_library_sources(widgets/util.c)
+  zephyr_library_sources(widgets/bolt.c)
+
+  # Middle-section art: user file if configured, otherwise the placeholder.
+  if(CONFIG_NICE_VIEW_CUSTOM_ART STREQUAL "")
+    zephyr_library_sources(widgets/art.c)
+  else()
+    if(IS_ABSOLUTE "${CONFIG_NICE_VIEW_CUSTOM_ART}")
+      set(nvc_art "${CONFIG_NICE_VIEW_CUSTOM_ART}")
+    else()
+      set(nvc_art "${ZMK_CONFIG}/${CONFIG_NICE_VIEW_CUSTOM_ART}")
+    endif()
+    if(NOT EXISTS "${nvc_art}")
+      message(FATAL_ERROR "nice_view_custom: CONFIG_NICE_VIEW_CUSTOM_ART file not found: ${nvc_art}")
+    endif()
+    zephyr_library_sources("${nvc_art}")
+  endif()
+
+  if(NOT CONFIG_ZMK_SPLIT OR CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+    zephyr_library_sources(widgets/status.c)
+  else()
+    zephyr_library_sources(widgets/peripheral_status.c)
+  endif()
+endif()
