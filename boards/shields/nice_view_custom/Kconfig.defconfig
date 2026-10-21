@@ -41,7 +41,8 @@ config NICE_VIEW_CUSTOM_WIDGET
     select LV_USE_CANVAS
 
 config NICE_VIEW_CUSTOM_INVERTED
-    bool "Invert colors (white on black)"
+    bool "White on black (set =n for black on white)"
+    default y
 
 config NICE_VIEW_CUSTOM_ART
     string "Path to a custom art .c file (absolute, or relative to the zmk-config folder)"

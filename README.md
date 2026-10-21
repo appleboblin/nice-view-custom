@@ -47,7 +47,7 @@ Requires ZMK `main` (or v0.4 once released). It will not build on v0.3 (LVGL 8).
 | Option | Default | |
 |---|---|---|
 | `CONFIG_NICE_VIEW_CUSTOM_ART` | `""` | Path to your art `.c` file, absolute or relative to the `config/` folder. Empty = built-in placeholder. |
-| `CONFIG_NICE_VIEW_CUSTOM_INVERTED` | `n` | White on black |
+| `CONFIG_NICE_VIEW_CUSTOM_INVERTED` | `y` | White on black. Set `n` for black on white |
 | `CONFIG_NICE_VIEW_CUSTOM_PERIPHERAL_LABEL` | `""` | Text in the peripheral's bottom band, e.g. `"Corne"` |
 
 Layer names come from each layer's `display-name` (the name in `ZMK_LAYER(name, ...)` with zmk-helpers). Layers without one show `Layer N`.
@@ -67,7 +67,7 @@ then in `config/corne.conf`:
 CONFIG_NICE_VIEW_CUSTOM_ART="art.c"
 ```
 
-Converter flags: `--dither` (photos), `--threshold N` (0–255, default 128), `--invert` (swap ink/background in the source), `--fit contain|cover|none`. Images larger than 68×68 are shrunk; smaller ones stay pixel-exact and are centered. Dark pixels become ink; transparent pixels become background. Pixel art drawn at exactly 68×68 looks best on this panel.
+Converter flags: `--dither` (photos), `--threshold N` (0–255, default 128), `--invert` (swap ink/background in the source), `--fit contain|cover|none`. Images larger than 68×68 are shrunk; smaller ones stay pixel-exact and are centered. Dark pixels in your source image become ink (drawn white on the default black screen); light and transparent pixels become background. Pixel art drawn at exactly 68×68 looks best on this panel.
 
 The art file is compiled into both halves. Only use artwork you have the rights to.
 
